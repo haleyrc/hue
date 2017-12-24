@@ -1,12 +1,11 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
-	"net/http/httputil"
 	"os"
+	"time"
 
 	"github.com/haleyrc/hue"
 )
@@ -35,71 +34,37 @@ func main() {
 		fmt.Println(light)
 	}
 
-	l, err := h.Light("1")
+	l, err := h.Light("2")
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	fmt.Println(l)
 
-	// l.On()
-	// h.On(l)
-
-	// l.Off()
-	// h.Off(l)
-
-	// l.SetBrightness(254)
-	// h.SetBrightness(l, 254)
-	// h.SetAllBrightness(254)
-
-	// l.SetHue(65535)
-	// h.SetHue(l, 65535)
-
-	// l.SetSaturation(254)
-	// h.SetSaturation(l, 254)
-
-	// l.Alert()
-	// h.Alert(l)
-
-	// l.Breathe()
-	// h.Breathe(l)
-
-	// l.SetTransitionTime(4)
-	// h.SetTransitionTime(l, 4)
-
-	// h.Commit([dryrun])
-	// h.Explain()
-}
-
-type DebugClient struct {
-	*http.Client
-}
-
-func (c *DebugClient) Do(r *http.Request) (*http.Response, error) {
-	resp, err := c.Client.Do(r)
-	if err != nil {
-		return nil, err
+	if err := h.SetState("2", hue.On()); err != nil {
+		log.Fatalln(err)
 	}
 
-	b, err := httputil.DumpResponse(resp, true)
-	if err != nil {
-		return nil, nil
+	<-time.After(2 * time.Second)
+	redAlert := hue.NewState(
+		hue.WithSaturation(255),
+		hue.WithHue(0),
+		hue.WithBrightness(255),
+		hue.WithAlert(hue.LongAlert),
+	)
+	fmt.Printf("%+v\n", redAlert)
+	if err := h.SetState("2", redAlert); err != nil {
+		log.Fatalln(err)
 	}
 
-	fmt.Println(string(b))
-
-	return resp, err
-}
-
-type MockClient struct{}
-
-func (c *MockClient) Do(r *http.Request) (*http.Response, error) {
-	b, err := httputil.DumpRequestOut(r, true)
-	if err != nil {
-		return nil, nil
+	<-time.After(5 * time.Second)
+	resume := hue.NewState(hue.WithAlert(hue.CancelAlert), hue.WithBrightness(255), hue.WithSaturation(0))
+	if err := h.SetState("2", resume); err != nil {
+		log.Fatalln(err)
 	}
 
-	fmt.Println(string(b))
-
-	return nil, errors.New("mock client")
+	<-time.After(2 * time.Second)
+	if err := h.SetState("2", hue.Off()); err != nil {
+		log.Fatalln(err)
+	}
 }
