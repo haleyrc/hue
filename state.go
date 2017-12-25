@@ -74,6 +74,12 @@ func WithSaturation(sat int) StateOption {
 	}
 }
 
+func WithTransitionTime(t int) StateOption {
+	return func(m StateMod) {
+		m["transitiontime"] = t
+	}
+}
+
 type Alert int
 
 const (
@@ -117,7 +123,7 @@ func WithEffect(effect Effect) StateOption {
 	}
 }
 
-func (h *Hue) SetState(id string, s StateMod) error {
+func (h *Hue) SetState(l *Light, s StateMod) error {
 	pr, pw := io.Pipe()
 	defer pr.Close()
 
@@ -128,7 +134,7 @@ func (h *Hue) SetState(id string, s StateMod) error {
 		close(errs)
 	}()
 
-	_, err := h.request("PUT", fmt.Sprintf("/lights/%s/state", id), pr)
+	_, err := h.request("PUT", fmt.Sprintf("/lights/%s/state", l.ID), pr)
 	if err != nil {
 		return errors.Wrap(err, "could not set state")
 	}
