@@ -68,3 +68,31 @@ func (s *State) String() string {
 		s.Reachable,
 	)
 }
+
+type Group struct {
+	// ID is the string ID of the group.
+	ID string `json:"-"`
+	// Name is the user- or system-defined name of the group.
+	Name string `json:"name"`
+	// Lights is a list of light IDs that belong to the group.
+	Lights []string `json:"lights"`
+	// GroupType is the type of group.
+	GroupType string `json:"type"`
+	// Action is the last state command issued to the group.
+	Action State `json:"action"`
+}
+
+func (g *Group) String() string {
+	return fmt.Sprintf(`
+ID:     %s
+Name:   %s
+Lights: %v
+Type:   %s
+Action: %s`,
+		g.ID,
+		g.Name,
+		g.Lights,
+		g.GroupType,
+		&g.Action,
+	)
+}

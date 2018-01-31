@@ -134,8 +134,7 @@ func (h *Hue) SetState(l *Light, s StateMod) error {
 		close(errs)
 	}()
 
-	_, err := h.request("PUT", fmt.Sprintf("/lights/%s/state", l.ID), pr)
-	if err != nil {
+	if _, err := h.request("PUT", fmt.Sprintf("/lights/%s/state", l.ID), pr); err != nil {
 		return errors.Wrap(err, "could not set state")
 	}
 
