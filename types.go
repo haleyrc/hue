@@ -1,6 +1,9 @@
 package hue
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // Light describes the properties of a single Phillips Hue lightbulb.
 type Light struct {
@@ -70,15 +73,11 @@ type Group struct {
 }
 
 func (g *Group) String() string {
-	return fmt.Sprintf(`
-ID:     %s
-Name:   %s
-Lights: %v
-Type:   %s
-Action: %s`,
+	return fmt.Sprintf(
+		`<id=%s,name=%s,lights=[%s],type=%s,action:%s>`,
 		g.ID,
 		g.Name,
-		g.Lights,
+		strings.Join(g.Lights, ", "),
 		g.GroupType,
 		&g.Action,
 	)
