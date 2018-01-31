@@ -93,6 +93,33 @@ func TestWithSaturation(t *testing.T) {
 	}
 }
 
+func TestWithTransitionTime(t *testing.T) {
+	var m = make(hue.StateMod)
+
+	if tt, ok := m["transitiontime"]; ok {
+		t.Errorf("expected transition time not to be set, but it was %d", tt)
+	}
+
+	tests := []struct{ In, Want int }{
+		{In: 0, Want: 0},
+		{In: 30, Want: 30},
+		{In: -1, Want: 0},
+	}
+
+	for _, test := range tests {
+		hue.WithTransitionTime(test.In)(m)
+
+		tt, ok := m["transitiontime"]
+		if !ok {
+			t.Errorf("expected transition time to be set, but it wasn't")
+		}
+
+		if tt != test.Want {
+			t.Errorf("expected transition time to be %d, but it was %d", test.Want, tt)
+		}
+	}
+}
+
 func TestWithAlert(t *testing.T) {
 	var m = make(hue.StateMod)
 
@@ -182,6 +209,10 @@ func TestNewState(t *testing.T) {
 			Want: hue.StateMod{"effect": "colorloop"},
 		},
 		NewStateTest{
+			Opts: []hue.StateOption{hue.WithTransitionTime(30)},
+			Want: hue.StateMod{"transitiontime": 30},
+		},
+		NewStateTest{
 			Opts: []hue.StateOption{
 				hue.WithBrightness(10),
 				hue.WithEffect(hue.ColorLoop),
@@ -202,6 +233,7 @@ func TestNewState(t *testing.T) {
 				hue.WithSaturation(30),
 				hue.WithAlert(hue.LongAlert),
 				hue.WithEffect(hue.ColorLoop),
+				hue.WithTransitionTime(30),
 			},
 			Want: hue.StateMod{
 				"bri":    10,
@@ -209,6 +241,7 @@ func TestNewState(t *testing.T) {
 				"sat":    30,
 				"alert":  "lselect",
 				"effect": "colorloop",
+				"transitiontime": 30,
 			},
 		},
 	}

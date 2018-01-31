@@ -17,10 +17,9 @@ type Light struct {
 
 // String implements fmt.Stringer.
 func (l *Light) String() string {
-	return fmt.Sprintf(`%s: %s
-    Unique ID:    %s
-    State:%s`,
-		l.ID, l.Name, l.UniqueID, l.State,
+	return fmt.Sprintf(
+		`<id=%s,uid=%s,name=%s,state:%s>`,
+		l.ID, l.UniqueID, l.Name, l.State,
 	)
 }
 
@@ -51,21 +50,9 @@ type State struct {
 
 // String implements fmt.Stringer.
 func (s *State) String() string {
-	return fmt.Sprintf(`
-        On:         %t
-        Brightness: %d
-        Hue:        %d
-        Saturation: %d
-        Alert:      %s
-        Effect:     %s
-        Reachable:  %t`,
-		s.On,
-		s.Brightness,
-		s.Hue,
-		s.Saturation,
-		s.Alert,
-		s.Effect,
-		s.Reachable,
+	return fmt.Sprintf(
+		`<on=%t,bri=,%d,hue=%d,sat=%d,alt=%s,eff=%s,rea=%t>`,
+		s.On, s.Brightness, s.Hue, s.Saturation, s.Alert, s.Effect, s.Reachable,
 	)
 }
 

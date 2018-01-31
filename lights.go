@@ -27,7 +27,7 @@ func (h *Hue) Light(id string) (*Light, error) {
 	return body, nil
 }
 
-// Lights returns a list of all reachable Phillips Hue lightbulbs and their
+// Lights returns a list of all reachable Phillips Hue light bulbs and their
 // states.
 func (h *Hue) Lights() ([]*Light, error) {
 	resp, err := h.request("GET", "/lights", nil)
@@ -41,7 +41,7 @@ func (h *Hue) Lights() ([]*Light, error) {
 	}
 	resp.Body.Close()
 
-	lights := make([]*Light, 0)
+	var lights []*Light
 	for id, light := range body {
 		if !light.State.Reachable {
 			continue

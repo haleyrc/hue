@@ -1,3 +1,7 @@
+// This program is a test of the API that also happens to be as festive as I
+// get. Cycles the light with ID "1" between and green in a pleasant fashion.
+// For me, this is an exterior light near my front door, making it okay that I
+// didn't put up any other lights.
 package main
 
 import (
@@ -7,6 +11,7 @@ import (
 	"time"
 
 	"github.com/haleyrc/hue"
+	"github.com/haleyrc/hue/debug"
 )
 
 func main() {
@@ -21,19 +26,19 @@ func main() {
 		log.Fatalln("user id is required")
 	}
 
-	h := hue.New(bridgeIP, userID, &http.Client{})
+	h := hue.New(bridgeIP, userID, &debug.Client{&http.Client{}})
 
 	red := hue.NewState(
 		hue.WithSaturation(255),
 		hue.WithHue(0),
-		hue.WithBrightness(255),
+		hue.WithBrightness(128),
 		hue.WithTransitionTime(30),
 	)
 
 	green := hue.NewState(
 		hue.WithSaturation(255),
 		hue.WithHue(25500),
-		hue.WithBrightness(255),
+		hue.WithBrightness(128),
 		hue.WithTransitionTime(30),
 	)
 

@@ -1,4 +1,6 @@
-package main
+// Package debug just contains some junk to help me debug the API while in
+// development. Not really meaningful anywhere else.
+package debug
 
 import (
 	"errors"
@@ -7,11 +9,11 @@ import (
 	"net/http/httputil"
 )
 
-type DebugClient struct {
+type Client struct {
 	*http.Client
 }
 
-func (c *DebugClient) Do(r *http.Request) (*http.Response, error) {
+func (c *Client) Do(r *http.Request) (*http.Response, error) {
 	resp, err := c.Client.Do(r)
 	if err != nil {
 		return nil, err

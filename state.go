@@ -9,16 +9,19 @@ import (
 	"github.com/pkg/errors"
 )
 
-// TODO (RCH): Add transition time modifier
-
+// On returns a StateMod setting the "on" state to true.
 func On() StateMod {
 	return StateMod{"on": true}
 }
 
+// Off returns a StateMod setting the "on" state to false.
 func Off() StateMod {
 	return StateMod{"on": false}
 }
 
+// NewState returns a StateMod that is the combination of the provided options.
+// Options are processed in order, so passing two of the same option ends up in
+// a last write wins scenario.
 func NewState(opts ...StateOption) StateMod {
 	var m = make(StateMod)
 
@@ -29,9 +32,20 @@ func NewState(opts ...StateOption) StateMod {
 	return m
 }
 
+// StateMod is a structure suitable for converting to JSON that can be passed to
+// the state update endpoint for a single light. This can be created manually,
+// but it's ideal to use the StateOption functions since they do some sanity
+// checks beforehand.
 type StateMod map[string]interface{}
+
+// StateOption is a function that modifies the given StateMod. Most settings are
+// specified as "generator" function that return a StateOption function when
+// passed a value for whatever parameter is being modified.
 type StateOption func(StateMod)
 
+// WithBrightness returns a StateOption function that sets the "bri" parameter
+// to the given value. The value is clamped to be between 1 and 254, with 1
+// being the lowest a bulb can operate, and 254 being maximum brightness.
 func WithBrightness(bri int) StateOption {
 	return func(m StateMod) {
 		if bri < 1 {
@@ -46,6 +60,9 @@ func WithBrightness(bri int) StateOption {
 	}
 }
 
+// WithHue returns a StateOption function that sets the "hue" parameter to the
+// given vavlue. The value is clamped to be between 0 and 65535, with both being
+// red, and additional hues occupying the space between.
 func WithHue(hue int) StateOption {
 	return func(m StateMod) {
 		if hue < 0 {
@@ -60,6 +77,9 @@ func WithHue(hue int) StateOption {
 	}
 }
 
+// WithSaturation returns a StateOption function that sets the "sat" parameter
+// to the given value. The value is clamped to be between 0 and 254, with 254
+// being maximum color saturation, and 0 being white.
 func WithSaturation(sat int) StateOption {
 	return func(m StateMod) {
 		if sat < 0 {
@@ -74,20 +94,35 @@ func WithSaturation(sat int) StateOption {
 	}
 }
 
+// WithTransitionTime returns a StateOption function that sets the 
+// "transitiontime" parameter to the given value. The value is clamped to be
+// greater than 0, since negative transition times are non-sensical.
 func WithTransitionTime(t int) StateOption {
 	return func(m StateMod) {
+		if t < 0 {
+			t = 0
+		}
+
 		m["transitiontime"] = t
 	}
 }
 
+// Alert represents one of the recognized alert states.
 type Alert int
 
 const (
+	// CancelAlert represents an alert status of "none".
 	CancelAlert = iota
+	// ShortAlert represents an alert status of "select", which is a single flash.
 	ShortAlert
+	// LongAlert represents an alert status of "lselect", which pulses for 15s or
+	// until "none" is set.
 	LongAlert
 )
 
+// WithAlert returns a StateOption that sets the "alert" parameter to the value
+// corresponding to the provided Alert. Unrecognized Alerts are assumed to be
+// "none".
 func WithAlert(alert Alert) StateOption {
 	return func(m StateMod) {
 		switch alert {
@@ -103,13 +138,19 @@ func WithAlert(alert Alert) StateOption {
 	}
 }
 
+// Effect represents one of the recognized effect states.
 type Effect int
 
 const (
+	// CancelEffect represents an effect status of "none".
 	CancelEffect = iota
+	// ColorLoop represents an effect status of "colorloop".
 	ColorLoop
 )
 
+// WithEffect returns a StateOption that sets the "effect" parameter to the
+// value corresponding to the provided Effect. Unrecognized Effects are assumed
+// to be "none".
 func WithEffect(effect Effect) StateOption {
 	return func(m StateMod) {
 		switch effect {
@@ -123,6 +164,8 @@ func WithEffect(effect Effect) StateOption {
 	}
 }
 
+// SetState sets the active state of the provided light to the values supplied
+// in the given StateMod.
 func (h *Hue) SetState(l *Light, s StateMod) error {
 	pr, pw := io.Pipe()
 	defer pr.Close()
