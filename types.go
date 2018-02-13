@@ -72,6 +72,7 @@ type Group struct {
 	Action State `json:"action"`
 }
 
+// String implements fmt.Stringer.
 func (g *Group) String() string {
 	return fmt.Sprintf(
 		`<id=%s,name=%s,lights=[%s],type=%s,action:%s>`,

@@ -236,11 +236,11 @@ func TestNewState(t *testing.T) {
 				hue.WithTransitionTime(30),
 			},
 			Want: hue.StateMod{
-				"bri":    10,
-				"hue":    20,
-				"sat":    30,
-				"alert":  "lselect",
-				"effect": "colorloop",
+				"bri":            10,
+				"hue":            20,
+				"sat":            30,
+				"alert":          "lselect",
+				"effect":         "colorloop",
 				"transitiontime": 30,
 			},
 		},
@@ -265,5 +265,19 @@ func TestNewState(t *testing.T) {
 				t.Errorf("extra option %s in state", k)
 			}
 		}
+	}
+}
+
+func TestOn(t *testing.T) {
+	sm := hue.On()
+	if !sm["on"].(bool) {
+		t.Errorf(`expected "on" to be true, but it wasn't`)
+	}
+}
+
+func TestOff(t *testing.T) {
+	sm := hue.Off()
+	if sm["on"].(bool) {
+		t.Errorf(`expected "off" to be true, but it wasn't`)
 	}
 }

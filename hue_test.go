@@ -1,5 +1,7 @@
+// +build integration
 package hue_test
 
+/*
 import (
 	"net/http"
 	"os"
@@ -43,3 +45,4 @@ func TestGroups(t *testing.T) {
 		t.Errorf("error setting state for all: %v\n", err)
 	}
 }
+*/

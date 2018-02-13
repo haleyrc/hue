@@ -94,7 +94,7 @@ func WithSaturation(sat int) StateOption {
 	}
 }
 
-// WithTransitionTime returns a StateOption function that sets the 
+// WithTransitionTime returns a StateOption function that sets the
 // "transitiontime" parameter to the given value. The value is clamped to be
 // greater than 0, since negative transition times are non-sensical.
 func WithTransitionTime(t int) StateOption {
