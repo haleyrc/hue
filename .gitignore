@@ -1,3 +1,4 @@
 *.env
 .*.un~
 .*.swp
+*.json
