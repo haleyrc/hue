@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/haleyrc/hue"
-	"github.com/haleyrc/hue/debug"
 )
 
 func main() {
@@ -26,19 +25,19 @@ func main() {
 		log.Fatalln("user id is required")
 	}
 
-	h := hue.New(bridgeIP, userID, &debug.Client{&http.Client{}})
+	h := hue.New(bridgeIP, userID, &http.Client{})
 
 	red := hue.NewState(
-		hue.WithSaturation(255),
-		hue.WithHue(0),
-		hue.WithBrightness(128),
+		hue.WithSaturation(0),
+		hue.WithHue(46920),
+		hue.WithBrightness(50),
 		hue.WithTransitionTime(30),
 	)
 
 	green := hue.NewState(
-		hue.WithSaturation(255),
-		hue.WithHue(25500),
-		hue.WithBrightness(128),
+		hue.WithSaturation(100),
+		hue.WithHue(46920),
+		hue.WithBrightness(50),
 		hue.WithTransitionTime(30),
 	)
 
