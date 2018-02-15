@@ -43,6 +43,18 @@ type StateMod map[string]interface{}
 // passed a value for whatever parameter is being modified.
 type StateOption func(StateMod)
 
+func WithOn() StateOption {
+	return func(m StateMod) {
+		m["on"] = true
+	}
+}
+
+func WithOff() StateOption {
+	return func(m StateMod) {
+		m["on"] = false
+	}
+}
+
 // WithBrightness returns a StateOption function that sets the "bri" parameter
 // to the given value. The value is clamped to be between 1 and 254, with 1
 // being the lowest a bulb can operate, and 254 being maximum brightness.
