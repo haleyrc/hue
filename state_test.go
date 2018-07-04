@@ -1,8 +1,10 @@
 package hue_test
 
 import (
+	"encoding/json"
 	"testing"
 
+	"github.com/haleyrc/expect"
 	"github.com/haleyrc/hue"
 )
 
@@ -280,4 +282,12 @@ func TestOff(t *testing.T) {
 	if sm["on"].(bool) {
 		t.Errorf(`expected "off" to be true, but it wasn't`)
 	}
+}
+
+func TestXYEncoding(t *testing.T) {
+	data := make(map[string]interface{})
+	data["xy"] = hue.XY{3, 4}
+	b, err := json.Marshal(data)
+	expect.ErrorToBeNil(t, err)
+	expect.StringEqual(t, "data", `{"xy":[3.0000,4.0000]}`, string(b))
 }

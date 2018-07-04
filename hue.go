@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/httputil"
+	"time"
 
 	"github.com/pkg/errors"
 )
@@ -27,6 +29,9 @@ type Hue struct {
 // New returns a Hue client. It connects to the bridge at the provided IP, using
 // the given user ID, using the provided Client.
 func New(ip, user string, client Client) *Hue {
+	if client == nil {
+		client = &http.Client{Timeout: 2 * time.Second}
+	}
 	return &Hue{ip: ip, user: user, client: client}
 }
 
@@ -40,6 +45,12 @@ func (h *Hue) request(method, frag string, body io.Reader) (*http.Response, erro
 		return nil, errors.Wrap(err, "could not build request")
 	}
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Connection", "keep-alive")
+	if false {
+		if b, err := httputil.DumpRequest(req, true); err == nil {
+			fmt.Println(string(b))
+		}
+	}
 
 	resp, err := h.client.Do(req)
 	if err != nil {

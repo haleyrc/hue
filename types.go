@@ -59,6 +59,10 @@ func (s *State) String() string {
 	)
 }
 
+// Group represents a group of Phillips Hue lights. The group may either be
+// user- or system-defined. The group with ID 0 is the master group and can be
+// used to control all lights regardless of their other group or room
+// associations.
 type Group struct {
 	// ID is the string ID of the group.
 	ID string `json:"-"`

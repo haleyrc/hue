@@ -1,4 +1,5 @@
 // +build integration
+
 package hue_test
 
 /*

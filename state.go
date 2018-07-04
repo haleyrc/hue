@@ -1,10 +1,9 @@
 package hue
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
-	"time"
 
 	"github.com/pkg/errors"
 )
@@ -43,12 +42,14 @@ type StateMod map[string]interface{}
 // passed a value for whatever parameter is being modified.
 type StateOption func(StateMod)
 
+// WithOn returns a StateOption function that sets the "on" parameter to true.
 func WithOn() StateOption {
 	return func(m StateMod) {
 		m["on"] = true
 	}
 }
 
+// WithOff returns a StateOption function that sets the "on" parameter to false.
 func WithOff() StateOption {
 	return func(m StateMod) {
 		m["on"] = false
@@ -86,6 +87,33 @@ func WithHue(hue int) StateOption {
 		}
 
 		m["hue"] = hue
+	}
+}
+
+type XY struct {
+	X, Y float64
+}
+
+func (xy XY) MarshalJSON() ([]byte, error) {
+	s := fmt.Sprintf("[%.4f,%.4f]", xy.X, xy.Y)
+	return []byte(s), nil
+}
+
+func WithXY(xy XY) StateOption {
+	return func(m StateMod) {
+		if xy.X > 1 {
+			xy.X = 1
+		}
+		if xy.X < 0 {
+			xy.X = 0
+		}
+		if xy.Y > 1 {
+			xy.Y = 1
+		}
+		if xy.Y < 0 {
+			xy.Y = 0
+		}
+		m["xy"] = xy
 	}
 }
 
@@ -178,27 +206,39 @@ func WithEffect(effect Effect) StateOption {
 
 // SetState sets the active state of the provided light to the values supplied
 // in the given StateMod.
+// func (h *Hue) SetState(l *Light, s StateMod) error {
+// 	pr, pw := io.Pipe()
+// 	defer pr.Close()
+
+// 	errs := make(chan error, 1)
+// 	go func() {
+// 		defer pw.Close()
+// 		errs <- json.NewEncoder(pw).Encode(s)
+// 		close(errs)
+// 	}()
+
+// 	if _, err := h.request("PUT", fmt.Sprintf("/lights/%s/state", l.ID), pr); err != nil {
+// 		return errors.Wrap(err, "could not set state")
+// 	}
+
+// 	for {
+// 		select {
+// 		case err := <-errs:
+// 			return errors.Wrap(err, "could not set state")
+// 		default:
+// 			time.Sleep(100 * time.Millisecond)
+// 		}
+// 	}
+// }
 func (h *Hue) SetState(l *Light, s StateMod) error {
-	pr, pw := io.Pipe()
-	defer pr.Close()
+	var buff bytes.Buffer
+	if err := json.NewEncoder(&buff).Encode(s); err != nil {
+		return errors.Wrap(err, "could not marshal state")
+	}
 
-	errs := make(chan error, 1)
-	go func() {
-		errs <- json.NewEncoder(pw).Encode(s)
-		pw.Close()
-		close(errs)
-	}()
-
-	if _, err := h.request("PUT", fmt.Sprintf("/lights/%s/state", l.ID), pr); err != nil {
+	if _, err := h.request("PUT", fmt.Sprintf("/lights/%s/state", l.ID), &buff); err != nil {
 		return errors.Wrap(err, "could not set state")
 	}
 
-	for {
-		select {
-		case err := <-errs:
-			return errors.Wrap(err, "could not set state")
-		default:
-			time.Sleep(100 * time.Millisecond)
-		}
-	}
+	return nil
 }

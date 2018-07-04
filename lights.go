@@ -27,9 +27,20 @@ func (h *Hue) Light(id string) (*Light, error) {
 	return body, nil
 }
 
+type LightList []*Light
+
+func (ll LightList) Get(n string) (*Light, bool) {
+	for _, l := range ll {
+		if l.Name == n {
+			return l, true
+		}
+	}
+	return nil, false
+}
+
 // Lights returns a list of all reachable Phillips Hue light bulbs and their
 // states.
-func (h *Hue) Lights() ([]*Light, error) {
+func (h *Hue) Lights() (LightList, error) {
 	resp, err := h.request("GET", "/lights", nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not get lights")
