@@ -1,29 +1,90 @@
 package hue
 
 import (
-	"fmt"
-	"strings"
+	"encoding/json"
 )
+
+type Update struct {
+	State       string `json:"state"`
+	LastInstall string `json:"lastinstall"`
+}
+
+type ColorTemperature struct {
+	Min int `json:"min"`
+	Max int `json:"max"`
+}
+
+type Control struct {
+	MinDimLevel      int              `json:"mindimlevel"`
+	MaxLumen         int              `json:"maxlumen"`
+	ColorGamutType   string           `json:"colorgamuttype"`
+	ColorGamut       [][]float64      `json:"colorgamut"`
+	ColorTemperature ColorTemperature `json:"ct"`
+}
+
+type Streaming struct {
+	Renderer bool `json:"renderer"`
+	Proxy    bool `json:"proxy"`
+}
+
+type Capabilities struct {
+	Certified bool      `json:"certified"`
+	Control   Control   `json:"control"`
+	Streaming Streaming `json:"streaming"`
+}
+
+type Startup struct {
+	Mode       string `json:"mode"`
+	Configured bool   `json:"configured"`
+}
+
+type Config struct {
+	Archetype string  `json:"archetype"`
+	Function  string  `json:"function"`
+	Direction string  `json:"direction"`
+	Startup   Startup `json:"startup"`
+}
 
 // Light describes the properties of a single Phillips Hue lightbulb.
 type Light struct {
 	// ID is the simple string ID the bulbs are keyed by.
 	ID string `json:"-"`
+
+	// State is the total state of the bulb at the time of query.
+	State State `json:"state"`
+
+	Update Update `json:"swupdate"`
+
+	Type string `json:"type"`
+
+	// Name is the user-set nickname for a bulb.
+	Name string `json:"name"`
+
+	ModelID string `json:"modelid"`
+
+	ManufacturerName string `json:"manufacturername"`
+
+	ProductName string `json:"productname"`
+
+	Capabilities Capabilities `json:"capabilities"`
+
+	Config Config `json:"config"`
+
 	// UniqueID is the MAC address-like ID that uniquely identifies a single
 	// bulb regardless of configuration.
 	UniqueID string `json:"uniqueid"`
-	// Name is the user-set nickname for a bulb.
-	Name string `json:"name"`
-	// State is the total state of the bulb at the time of query.
-	State *State `json:"state"`
+
+	SoftwareVersion string `json:"swversion"`
+
+	SoftwareConfigID string `json:"swconfigid"`
+
+	ProductID string `json:"productid"`
 }
 
 // String implements fmt.Stringer.
 func (l *Light) String() string {
-	return fmt.Sprintf(
-		`<id=%s,uid=%s,name=%s,state:%s>`,
-		l.ID, l.UniqueID, l.Name, l.State,
-	)
+	b, _ := json.Marshal(l)
+	return string(b)
 }
 
 // State describes the accumulated state of a single Phillips Hue bulb. We only
@@ -53,10 +114,8 @@ type State struct {
 
 // String implements fmt.Stringer.
 func (s *State) String() string {
-	return fmt.Sprintf(
-		`<on=%t,bri=,%d,hue=%d,sat=%d,alt=%s,eff=%s,rea=%t>`,
-		s.On, s.Brightness, s.Hue, s.Saturation, s.Alert, s.Effect, s.Reachable,
-	)
+	b, _ := json.Marshal(s)
+	return string(b)
 }
 
 // Group represents a group of Phillips Hue lights. The group may either be
@@ -78,12 +137,6 @@ type Group struct {
 
 // String implements fmt.Stringer.
 func (g *Group) String() string {
-	return fmt.Sprintf(
-		`<id=%s,name=%s,lights=[%s],type=%s,action:%s>`,
-		g.ID,
-		g.Name,
-		strings.Join(g.Lights, ", "),
-		g.GroupType,
-		&g.Action,
-	)
+	b, _ := json.Marshal(g)
+	return string(b)
 }

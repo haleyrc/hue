@@ -1,0 +1,4 @@
+github.com/haleyrc/expect v0.0.0-20200829190000-ab2130c517e0 h1:2mXECgV+VE2g24hR4sz2JCmbiMkfOXLVegsXwRVCxro=
+github.com/haleyrc/expect v0.0.0-20200829190000-ab2130c517e0/go.mod h1:YhdTzCcdnKot3jpU/nywTZ+aT61EhklrV5Iw8M/Z8jc=
+github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
+github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
